@@ -70,8 +70,8 @@ $(window).load(function() {
 });
 
 var start_fun = function() {
-  if(loaded[0] && loaded[20]) { 
-    console.log('starting!'); 
+  if(loaded[0] && loaded[20]) {
+    console.log('starting!');
     setInterval(load_and_step, 0); // lets go!
   }
   else { setTimeout(start_fun, 200); } // keep checking
@@ -81,7 +81,7 @@ var load_data_batch = function(batch_num) {
   // Load the dataset with JS in background
   data_img_elts[batch_num] = new Image();
   var data_img_elt = data_img_elts[batch_num];
-  data_img_elt.onload = function() { 
+  data_img_elt.onload = function() {
     var data_canvas = document.createElement('canvas');
     data_canvas.width = data_img_elt.width;
     data_canvas.height = data_img_elt.height;
@@ -118,7 +118,7 @@ var render_act = function(A) {
   var d = 0;
   for(var x=0;x<A.sx;x++) {
     for(var y=0;y<A.sy;y++) {
-      var dval = Math.floor((A.get(x,y,d)-mm.minv)/mm.dv*255);  
+      var dval = Math.floor((A.get(x,y,d)-mm.minv)/mm.dv*255);
       for(var dx=0;dx<s;dx++) {
         for(var dy=0;dy<s;dy++) {
           var pp = ((W * (y*s+dy)) + (dx + x*s)) * 4;
@@ -163,7 +163,7 @@ var draw_activations = function(elt, A, scale, grads) {
         if(draw_grads) {
           var dval = Math.floor((A.get_grad(x,y,d)-mm.minv)/mm.dv*255);
         } else {
-          var dval = Math.floor((A.get(x,y,d)-mm.minv)/mm.dv*255);  
+          var dval = Math.floor((A.get(x,y,d)-mm.minv)/mm.dv*255);
         }
         for(var dx=0;dx<s;dx++) {
           for(var dy=0;dy<s;dy++) {
@@ -176,7 +176,7 @@ var draw_activations = function(elt, A, scale, grads) {
     }
     ctx.putImageData(g, 0, 0);
     elt.appendChild(canv);
-  }  
+  }
 }
 
 var visualize_activations = function(net, elt) {
@@ -200,7 +200,7 @@ var visualize_activations = function(net, elt) {
     if(L.layer_type==='fc') scale = 10; // for softmax
     if(L.layer_type==='regression') {
       var Vvis = L.out_act.clone();
-      Vvis.sx = 28; 
+      Vvis.sx = 28;
       Vvis.sy = 28;
       Vvis.depth = 1;
       draw_activations(activations_div, Vvis, scale);
@@ -214,7 +214,7 @@ var visualize_activations = function(net, elt) {
         activations_div.appendChild(document.createTextNode('Predicted reconstruction:'));
         activations_div.appendChild(document.createElement('br'));
         var Vvis = net.layers[net.layers.length-1].out_act.clone();
-        Vvis.sx = 28; 
+        Vvis.sx = 28;
         Vvis.sy = 28;
         Vvis.depth = 1;
         draw_activations(activations_div, Vvis, scale);
@@ -227,8 +227,8 @@ var visualize_activations = function(net, elt) {
       filters_div.appendChild(document.createElement('br'));
       for(var j=0;j<L.filters.length;j++) {
         var Lshow = L.filters[j].clone();
-        Lshow.sx = 28; 
-        Lshow.sy = 28; 
+        Lshow.sx = 28;
+        Lshow.sy = 28;
         Lshow.depth = 1;
         draw_activations(filters_div, Lshow, 2);
       }
@@ -312,7 +312,7 @@ var paused = false;
 var embed_samples = [];
 var embed_imgs = [];
 var load_and_step = function() {
-  if(paused) return; 
+  if(paused) return;
 
   if(embed_samples.length === 0) { // happens once
     for(var k=0;k<200;k++) {
@@ -360,7 +360,7 @@ var step = function(sample) {
   // train on it with network
   var stats = trainer.train(sample.x, sample.x.w);
 
-  // keep track of stats such as the average training error and loss  
+  // keep track of stats such as the average training error and loss
   xLossWindow.add(stats.cost_loss);
   w1LossWindow.add(stats.l1_decay_loss);
   w2LossWindow.add(stats.l2_decay_loss);
@@ -444,7 +444,7 @@ var step = function(sample) {
   step_num++;
 }
 
-// user settings 
+// user settings
 var change_lr = function() {
   trainer.learning_rate = parseFloat(document.getElementById("lr_input").value);
   update_net_param_display();
@@ -462,7 +462,7 @@ var dump_json = function() {
   document.getElementById("dumpjson").value = JSON.stringify(net.toJSON());
 }
 var clear_graph = function() {
-  lossGraph = new cnnvis.Graph(); // reinit graph too 
+  lossGraph = new cnnvis.Graph(); // reinit graph too
 }
 var reset_all = function() {
   update_net_param_display();

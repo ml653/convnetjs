@@ -70,7 +70,7 @@ var sample_test_instance = function() {
 
   // distort position and maybe flip
   var xs = [];
-  
+
   if (random_flip || random_position){
     for(var k=0;k<6;k++) {
       var test_variation = x;
@@ -79,9 +79,9 @@ var sample_test_instance = function() {
         var dy = Math.floor(Math.random()*5-2);
         test_variation = convnetjs.augment(test_variation, image_dimension, dx, dy, false);
       }
-      
+
       if(random_flip){
-        test_variation = convnetjs.augment(test_variation, image_dimension, 0, 0, Math.random()<0.5); 
+        test_variation = convnetjs.augment(test_variation, image_dimension, 0, 0, Math.random()<0.5);
       }
 
       xs.push(test_variation);
@@ -89,7 +89,7 @@ var sample_test_instance = function() {
   }else{
     xs.push(x, image_dimension, 0, 0, false); // push an un-augmented copy
   }
-  
+
   // return multiple augmentations, and we will average the network over them
   // to increase performance
   return {x:xs, label:labels[n]};
@@ -107,9 +107,13 @@ $(window).load(function() {
   $("#newnet").val(t);
   eval($("#newnet").val());
 
+  console.log('images-demo.js')
+
   update_net_param_display();
 
-  for(var k=0;k<loaded.length;k++) { loaded[k] = false; }
+  for(var k=0;k<loaded.length;k++) {
+    loaded[k] = false;
+  }
 
   load_data_batch(0); // async load train set batch 0
   load_data_batch(test_batch); // async load test set
@@ -117,8 +121,8 @@ $(window).load(function() {
 });
 
 var start_fun = function() {
-  if(loaded[0] && loaded[test_batch]) { 
-    console.log('starting!'); 
+  if(loaded[0] && loaded[test_batch]) {
+    console.log('starting!');
     setInterval(load_and_step, 0); // lets go!
   }
   else { setTimeout(start_fun, 200); } // keep checking
@@ -128,7 +132,7 @@ var load_data_batch = function(batch_num) {
   // Load the dataset with JS in background
   data_img_elts[batch_num] = new Image();
   var data_img_elt = data_img_elts[batch_num];
-  data_img_elt.onload = function() { 
+  data_img_elt.onload = function() {
     var data_canvas = document.createElement('canvas');
     data_canvas.width = data_img_elt.width;
     data_canvas.height = data_img_elt.height;
@@ -176,7 +180,7 @@ var draw_activations = function(elt, A, scale, grads) {
         if(draw_grads) {
           var dval = Math.floor((A.get_grad(x,y,d)-mm.minv)/mm.dv*255);
         } else {
-          var dval = Math.floor((A.get(x,y,d)-mm.minv)/mm.dv*255);  
+          var dval = Math.floor((A.get(x,y,d)-mm.minv)/mm.dv*255);
         }
         for(var dx=0;dx<s;dx++) {
           for(var dy=0;dy<s;dy++) {
@@ -189,7 +193,7 @@ var draw_activations = function(elt, A, scale, grads) {
     }
     ctx.putImageData(g, 0, 0);
     elt.appendChild(canv);
-  }  
+  }
 }
 
 var draw_activations_COLOR = function(elt, A, scale, grads) {
@@ -216,7 +220,7 @@ var draw_activations_COLOR = function(elt, A, scale, grads) {
         if(draw_grads) {
           var dval = Math.floor((A.get_grad(x,y,d)-mm.minv)/mm.dv*255);
         } else {
-          var dval = Math.floor((A.get(x,y,d)-mm.minv)/mm.dv*255);  
+          var dval = Math.floor((A.get(x,y,d)-mm.minv)/mm.dv*255);
         }
         for(var dx=0;dx<s;dx++) {
           for(var dy=0;dy<s;dy++) {
@@ -251,7 +255,7 @@ var visualize_activations = function(net, elt) {
     activations_div.className = 'layer_act';
     var scale = 2;
     if(L.layer_type==='softmax' || L.layer_type==='fc') scale = 10; // for softmax
-    
+
     // HACK to draw in color in input layer
     if(i===0) {
       draw_activations_COLOR(activations_div, L.out_act, scale);
@@ -285,7 +289,7 @@ var visualize_activations = function(net, elt) {
 
     } else {
       draw_activations(activations_div, L.out_act, scale);
-    } 
+    }
 
     // visualize data gradients
     if(L.layer_type !== 'softmax' && L.layer_type !== 'input' ) {
@@ -391,16 +395,17 @@ var visualize_activations = function(net, elt) {
 // loads a training image and trains on it with the network
 var paused = false;
 var load_and_step = function() {
-  if(paused) return; 
+  if(paused) return;
 
   var sample = sample_training_instance();
   step(sample); // process this image
-  
+
   //setTimeout(load_and_step, 0); // schedule the next iteration
 }
 
 // evaluate current network on test set
 var test_predict = function() {
+  console.log('images-demo.js => test_predict()')
   var num_classes = net.layers[net.layers.length-1].out_depth;
 
   document.getElementById('testset_acc').innerHTML = '';
@@ -424,7 +429,7 @@ var test_predict = function() {
     var preds = [];
     for(var k=0;k<aavg.w.length;k++) { preds.push({k:k,p:aavg.w[k]}); }
     preds.sort(function(a,b){return a.p<b.p ? 1:-1;});
-    
+
     var correct = preds[0].k===y;
     if(correct) num_correct++;
     num_total++;
@@ -437,7 +442,7 @@ var test_predict = function() {
 
     // add predictions
     var probsdiv = document.createElement('div');
-    
+
     var t = '';
     for(var k=0;k<3;k++) {
       var col = preds[k].k===y ? 'rgb(85,187,85)' : 'rgb(187,85,85)';
@@ -454,7 +459,7 @@ var test_predict = function() {
     }
   }
   testAccWindow.add(num_correct/num_total);
-  $("#testset_acc").text('test accuracy based on last 200 test images: ' + testAccWindow.get_average());  
+  $("#testset_acc").text('test accuracy based on last 200 test images: ' + testAccWindow.get_average());
 }
 var testImage = function(img) {
   var x = convnetjs.img_to_vol(img);
@@ -483,7 +488,7 @@ var testImage = function(img) {
     var col = k===0 ? 'rgb(85,187,85)' : 'rgb(187,85,85)';
     t += '<div class=\"pp\" style=\"width:' + Math.floor(preds[k].p/1*100) + 'px; background-color:' + col + ';\">' + classes_txt[preds[k].k] + '</div>'
   }
-  
+
   probsdiv.innerHTML = t;
   probsdiv.className = 'probsdiv';
   div.appendChild(probsdiv);
@@ -503,6 +508,8 @@ var valAccWindow = new cnnutil.Window(100);
 var testAccWindow = new cnnutil.Window(50, 1);
 var step_num = 0;
 var step = function(sample) {
+
+  // console.log(sample)
 
   var x = sample.x;
   var y = sample.label;
@@ -555,7 +562,9 @@ var step = function(sample) {
 
   // visualize activations
   if(step_num % 100 === 0) {
+    // TODO: Pull data from here.
     var vis_elt = document.getElementById("visnet");
+    console.log(JSON.stringify(net))
     visualize_activations(net, vis_elt);
   }
 
@@ -576,7 +585,7 @@ var step = function(sample) {
   step_num++;
 }
 
-// user settings 
+// user settings
 var change_lr = function() {
   trainer.learning_rate = parseFloat(document.getElementById("lr_input").value);
   update_net_param_display();
@@ -594,6 +603,7 @@ var change_decay = function() {
   update_net_param_display();
 }
 var update_net_param_display = function() {
+  console.log('a', trainer.learning_rate);
   document.getElementById('lr_input').value = trainer.learning_rate;
   document.getElementById('momentum_input').value = trainer.momentum;
   document.getElementById('batch_size_input').value = trainer.batch_size;
@@ -609,7 +619,7 @@ var dump_json = function() {
   document.getElementById("dumpjson").value = JSON.stringify(this.net.toJSON());
 }
 var clear_graph = function() {
-  lossGraph = new cnnvis.Graph(); // reinit graph too 
+  lossGraph = new cnnvis.Graph(); // reinit graph too
 }
 var reset_all = function() {
   // reinit trainer
@@ -625,6 +635,7 @@ var reset_all = function() {
   lossGraph = new cnnvis.Graph(); // reinit graph too
   step_num = 0;
 }
+
 var load_from_json = function() {
   var jsonString = document.getElementById("dumpjson").value;
   var json = JSON.parse(jsonString);
